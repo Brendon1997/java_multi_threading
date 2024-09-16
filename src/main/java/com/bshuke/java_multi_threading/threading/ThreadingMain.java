@@ -1,16 +1,44 @@
 package com.bshuke.java_multi_threading.threading;
 
+import com.bshuke.java_multi_threading.model.BankAccount;
+import com.bshuke.java_multi_threading.model.BankAccountWorker;
 import com.bshuke.java_multi_threading.model.FileAdderCoupled;
 import com.bshuke.java_multi_threading.model.FileAdderDecoupled;
-import org.springframework.boot.autoconfigure.gson.GsonProperties;
 
 import java.util.concurrent.*;
 
-public class FileAdderThreading {
+public class ThreadingMain {
 
     public static void main(String[] args) {
-        do_threading_decoupled();
-        do_threading_coupled();
+//        do_threading_decoupled();
+//        do_threading_coupled();
+        demonstrateThreadingConcurrency();
+    }
+
+    private static void demonstrateThreadingConcurrency() {
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        BankAccount bankAccount = new BankAccount(100);
+
+/*      1)
+        We have 5 workers working on the same bank account at the same time.
+        To update the value of the deposit we take the value from memory, update it and save it.
+        But when we take the value from memory another thread may take the same value from memory, increment it and
+        update the value based on the old update, and we end up with a random total that is unexpected.
+
+        2)
+        We can fix this by using synchronised in the deposit and getBalance methods that are called within the run method of the Worker.
+        We can also fix this by using a synchronised block on the instance.
+
+        3)
+        Synchronised methods only protect the body of the method from being accessed by multiple threads concurrently.
+        Synchronised blocks allow you to protect multiple methods being called as a block and not allowing other threads to access
+        the object at the same time the block is being run.
+        */
+
+        for (int i = 0; i < 5; i++) {
+        BankAccountWorker worker = new BankAccountWorker(bankAccount);
+        executorService.submit(worker);
+        }
     }
 
     private static void do_threading_coupled() {

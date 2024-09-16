@@ -40,6 +40,10 @@ public class FileAdderDecoupled implements Runnable{
 
     @Override
     public void run() {
-        process();
+        try {
+            process();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
